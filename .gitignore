@@ -1,6 +1,14 @@
+# SublimeText workspace
 *.sublime-workspace
 
+# Input files, except test files
 *.cue
+!a-side.cue
+!beck.cue
+!cd-audio.cue
+!ursula1000.cue
+
+# Output files, but not README
 *.txt
 *.md
 !README.md
