@@ -1,1 +1,6 @@
 *.sublime-workspace
+
+*.cue
+*.txt
+*.md
+!README.md
