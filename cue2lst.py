@@ -10,7 +10,7 @@ class Track:
     #   PERFORMER "Le Hammond Inferno"
     #   INDEX 01 04:47:69
 
-    def __init__(self, track_num: str = None, title: str = None, performer: str = None, index: str = None):
+    def __init__(self, track_num: Optional[str] = None, title: Optional[str] = None, performer: Optional[str] = None, index: Optional[str] = None):
         self.track_num = int(track_num) if track_num else None
         self.title = title if title else None
         self.performer = performer if performer else None
@@ -48,8 +48,9 @@ class Cuesheet:
     # TITLE "All Systems Are Go Go"
     # FILE "CDImage.wav" WAVE
     tracks = []
+    incomplete_header = False
 
-    def __init__(self, title: str = None, performer: str = None):
+    def __init__(self, title: Optional[str] = None, performer: Optional[str] = None):
         self.title = title if title else None
         self.performer = performer if performer else None
 
@@ -60,6 +61,9 @@ class Cuesheet:
         r_tmp = re.search(r'^TITLE\s{1,}\"(.*?)\"$', line)
         if r_tmp:
             self.title = r_tmp.group(1)
+        r_tmp = re.search(r'^FILE\s{1,}\".*?\"\s{0,}(?:\w{1,})$', line)
+        if r_tmp:
+            self.incomplete_header = True
 
     def add_track(self, track: Track):
         c_track = deepcopy(track)
@@ -69,16 +73,25 @@ class Cuesheet:
         return len(self.tracks)
 
     def header_complete(self):
+        if self.incomplete_header:
+            return True
         return self.title and self.performer
 
     def tracks_complete(self):
         return self.len() > 0
 
     def __str__(self):
-        if self.performer and self.title:
-            return "Cuesheet with "+str(self.len())+" track(s): "+self.performer+"/"+self.title
-        else:
+        cue_title = "Cuesheet with "+str(self.len())+" track(s)"
+        if not self.tracks_complete:
             return "Incomplete Cuesheet with "+str(self.len())+" track(s)"
+        if self.performer and self.title:
+            return cue_title+": "+self.performer+"/"+self.title
+        elif self.performer and not self.title:
+            return cue_title+": "+self.performer
+        elif self.title and not self.performer:
+            return cue_title+": "+self.title
+        else:
+            return cue_title
 
 
 def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
@@ -109,24 +122,29 @@ def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
                 sheet.add_track(track)
             idx += 1
 
-    if not sheet.performer or not sheet.title or not sheet.tracks:
+    if not sheet.header_complete() or not sheet.tracks_complete():
         return None, "Error: Missing required metadata in CUE file."
 
     return sheet, None
 
 
 def format_output(sheet: Cuesheet, output_format: str, include_length: bool) -> str:
-    performer_title = sheet.performer + ": " + sheet.title
+    if sheet.performer and sheet.title:
+        sheet_title = sheet.performer + ": " + sheet.title
+    elif sheet.performer or sheet.title:
+        sheet_title = sheet.performer or sheet.title
+    else:
+        sheet_title = "Tracklist"
 
     if output_format == "md":
-        output = "# " + performer_title + "\n\n"
+        output = "# " + sheet_title + "\n\n"
         for track in sheet.tracks:
             track_line = str(int(track.track_num)) + ". " + track.title + " - " + track.performer
             if include_length:
                 track_line += " (" + track.index + ")"
             output += track_line + "\n"
     elif output_format == "txt":
-        output = performer_title + "\n\n"
+        output = sheet_title + "\n\n"
         for track in sheet.tracks:
             track_line = str(track.track_num) + ". " + track.title + " - " + track.performer
             if include_length:
