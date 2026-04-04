@@ -1,9 +1,87 @@
 import sys
 import re
-from typing import List, Dict, Tuple, Optional
+from typing import Tuple, Optional
+from copy import deepcopy
 
 
-def parse_cue_file(file_path: str) -> Tuple[Optional[Dict[str, str]], Optional[List[Dict[str, str]]], Optional[str]]:
+class Track:
+    # TRACK 02 AUDIO
+    #   TITLE "Margret Evening Fashion"
+    #   PERFORMER "Le Hammond Inferno"
+    #   INDEX 01 04:47:69
+
+    def __init__(self, track_num: str = None, title: str = None, performer: str = None, index: str = None):
+        self.track_num = int(track_num) if track_num else None
+        self.title = title if title else None
+        self.performer = performer if performer else None
+        self.index = index if index else None
+
+    def parseline(self, line):
+        r_tmp = re.search(r'^\s{0,}TRACK\s{1,}(\d{1,})\s{1,}AUDIO$', line)
+        if r_tmp:
+            self.track_num = int(r_tmp.group(1))
+            self.title = None
+            self.performer = None
+            self.index = None
+        r_tmp = re.search(r'^\s{0,}TITLE\s{1,}\"(.*?)\"$', line)
+        if r_tmp:
+            self.title = r_tmp.group(1)
+        r_tmp = re.search(r'^\s{0,}PERFORMER\s{1,}\"(.*?)\"$', line)
+        if r_tmp:
+            self.performer = r_tmp.group(1)
+        r_tmp = re.search(r'^\s{0,}INDEX\s{1,}\d{1,}\s{1,}(.*?)$', line)
+        if r_tmp:
+            self.index = r_tmp.group(1)
+
+    def track_complete(self):
+        return self.track_num and self.title and self.performer and self.index
+
+    def __str__(self):
+        if self.performer and self.title and self.track_num and self.index:
+            return "Track "+str(self.track_num)+": "+self.performer+"/"+self.title
+        else:
+            return "Incomplete track"
+
+
+class Cuesheet:
+    # PERFORMER "Ursula 1000"
+    # TITLE "All Systems Are Go Go"
+    # FILE "CDImage.wav" WAVE
+    tracks = []
+
+    def __init__(self, title: str = None, performer: str = None):
+        self.title = title if title else None
+        self.performer = performer if performer else None
+
+    def parseline(self, line):
+        r_tmp = re.search(r'^PERFORMER\s{1,}\"(.*?)\"$', line)
+        if r_tmp:
+            self.performer = r_tmp.group(1)
+        r_tmp = re.search(r'^TITLE\s{1,}\"(.*?)\"$', line)
+        if r_tmp:
+            self.title = r_tmp.group(1)
+
+    def add_track(self, track: Track):
+        c_track = deepcopy(track)
+        self.tracks.append(c_track)
+
+    def len(self):
+        return len(self.tracks)
+
+    def header_complete(self):
+        return self.title and self.performer
+
+    def tracks_complete(self):
+        return self.len() > 0
+
+    def __str__(self):
+        if self.performer and self.title:
+            return "Cuesheet with "+str(self.len())+" track(s): "+self.performer+"/"+self.title
+        else:
+            return "Incomplete Cuesheet with "+str(self.len())+" track(s)"
+
+
+def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
     """
     Parse a CUE file and return performer, title, and list of tracks with optional lengths.
     """
@@ -11,75 +89,48 @@ def parse_cue_file(file_path: str) -> Tuple[Optional[Dict[str, str]], Optional[L
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
-        return None, None, "Error reading file: " + e
+        return None, "Error reading file: " + e
 
-    performer = None
-    title = None
-    tracks = []
-
+    sheet = Cuesheet()
     idx = 0
-    list_started = False
 
     for line in lines:
-        line = line.strip()
-        if line.startswith("PERFORMER"):
-            if not list_started:
-                performer = re.search(r'\"(.*?)\"', line).group(1)
-        elif line.startswith("TITLE"):
-            if not list_started:
-                title = re.search(r'\"(.*?)\"', line).group(1)
-        elif line.startswith("TRACK"):
-            tracks.append({"number": line.split()[1], "title": None, "performer": None, "length": None})
-            list_started = True
-        elif line.startswith("INDEX 01") and tracks:
-            last_track = tracks[-1]
-            last_track["length"] = line.split()[2]
+        sheet.parseline(line)
+        if sheet.header_complete():
+            break;
         idx += 1
+    del lines[0:idx+1]
 
-    # Fill in track details
-    for line in lines:
-        line = line.strip()
-        if line.startswith("TITLE") and not line.startswith("PERFORMER"):
-            for track in tracks:
-                if track["title"] is None:
-                    track["title"] = re.search(r'\"(.*?)\"', line).group(1)
-                    break
-        elif line.startswith("PERFORMER"):
-            for track in tracks:
-                if track["performer"] is None and track["title"] is None:
-                    track["performer"] = re.search(r'\"(.*?)\"', line).group(1)
-                    break
-                elif track["performer"] is None and track["title"] is not None:
-                    track["performer"] = re.search(r'\"(.*?)\"', line).group(1)
-                    break
+    if sheet.header_complete():
+        track = Track()
+        for line in lines:
+            track.parseline(line)
+            if track.track_complete():
+                sheet.add_track(track)
+            idx += 1
 
-    if not performer or not title or not tracks:
-        return None, None, "Error: Missing required metadata in CUE file."
+    if not sheet.performer or not sheet.title or not sheet.tracks:
+        return None, "Error: Missing required metadata in CUE file."
 
-    return {"performer": performer, "title": title}, tracks, None
+    return sheet, None
 
 
-def to_title_case(s: str) -> str:
-    return ' '.join(word.capitalize() for word in s.split())
-
-
-def format_output(performer: str, title: str, tracks: List[Dict[str, str]], output_format: str, include_length: bool) -> str:
-    print("Got:", performer, title, len(tracks), output_format)
-    performer_title = to_title_case(performer) + ": " + to_title_case(title)
+def format_output(sheet: Cuesheet, output_format: str, include_length: bool) -> str:
+    performer_title = sheet.performer + ": " + sheet.title
 
     if output_format == "md":
         output = "# " + performer_title + "\n\n"
-        for track in tracks:
-            track_line = str(int(track['number'])) + ". " + to_title_case(track['title']) + " - " + to_title_case(track['performer'])
-            if include_length and track["length"]:
-                track_line += " (" + track['length'] + ")"
+        for track in sheet.tracks:
+            track_line = str(int(track.track_num)) + ". " + track.title + " - " + track.performer
+            if include_length:
+                track_line += " (" + track.index + ")"
             output += track_line + "\n"
     elif output_format == "txt":
         output = performer_title + "\n\n"
-        for track in tracks:
-            track_line = track['number'] + ". " + to_title_case(track['title']) + " - " + to_title_case(track['performer'])
-            if include_length and track["length"]:
-                track_line += " (" + track['length'] + ")"
+        for track in sheet.tracks:
+            track_line = str(track.track_num) + ". " + track.title + " - " + track.performer
+            if include_length:
+                track_line += " (" + track.index + ")"
             output += track_line + "\n"
     else:
         return "Unsupported output format."
@@ -89,29 +140,37 @@ def format_output(performer: str, title: str, tracks: List[Dict[str, str]], outp
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python3 cue2lst.py <cuefile> <output_format> [--length]")
+        print("Usage: python3 cue2lst.py <cuefile> <output_format> [--verbose]")
         return
 
     cue_file = sys.argv[1]
     output_format = sys.argv[2].lower()
-    include_length = "--length" in sys.argv[3:] if len(sys.argv) > 3 else False
+    include_length = False
+    # Apparently, it is not possible to calculate track length for the last track!
+    # include_length = "--length" in sys.argv[3:] if len(sys.argv) > 3 else False
+    verbose = "--verbose" in sys.argv[3:] if len(sys.argv) > 3 else False
 
     if output_format not in ("md", "txt"):
         print("Output format must be 'md' or 'txt'.")
         return
 
-    metadata, tracks, error = parse_cue_file(cue_file)
+    sheet, error = parse_cue_file(cue_file)
     if error:
         print(error)
         return
 
-    output = format_output(metadata["performer"], metadata["title"], tracks, output_format, include_length)
-
+    output = format_output(sheet, output_format, include_length)
     output_file = os.path.splitext(cue_file)[0] + (".md" if output_format == "md" else ".txt")
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(output)
 
-    print("Output written to: ", output_file)
+    if verbose:
+        print("Disc performer:", sheet.performer)
+        print("Disc title:", sheet.title)
+        print("Total tracks:", sheet.len())
+        print(*sheet.tracks, sep='\n')
+        print("-----------------------------------")
+    print("Output written to:", output_file)
 
 
 if __name__ == "__main__":
