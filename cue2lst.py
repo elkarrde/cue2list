@@ -34,11 +34,12 @@ class Track:
             self.index = r_tmp.group(1)
 
     def track_complete(self):
-        return self.track_num and self.title and self.performer and self.index
+        return self.track_num and self.index and (self.performer or self.title)
 
     def __str__(self):
-        if self.performer and self.title and self.track_num and self.index:
-            return "Track "+str(self.track_num)+": "+self.performer+"/"+self.title
+        if self.track_num and self.index and (self.title or self.performer):
+            track = self.title + ("/"+self.performer if self.performer else "")
+            return "Track "+str(self.track_num)+": "+track
         else:
             return "Incomplete track"
 
@@ -122,8 +123,10 @@ def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
                 sheet.add_track(track)
             idx += 1
 
-    if not sheet.header_complete() or not sheet.tracks_complete():
-        return None, "Error: Missing required metadata in CUE file."
+    if not sheet.header_complete():
+        return None, "Error: Missing header info."
+    elif not sheet.tracks_complete():
+        return None, "Error: Missing track list."
 
     return sheet, None
 
@@ -139,14 +142,16 @@ def format_output(sheet: Cuesheet, output_format: str, include_length: bool) -> 
     if output_format == "md":
         output = "# " + sheet_title + "\n\n"
         for track in sheet.tracks:
-            track_line = str(int(track.track_num)) + ". " + track.title + " - " + track.performer
+            performer = track.performer or sheet.performer
+            track_line = str(int(track.track_num)) + ". " + track.title + " - " + performer
             if include_length:
                 track_line += " (" + track.index + ")"
             output += track_line + "\n"
     elif output_format == "txt":
         output = sheet_title + "\n\n"
         for track in sheet.tracks:
-            track_line = str(track.track_num) + ". " + track.title + " - " + track.performer
+            performer = track.performer or sheet.performer
+            track_line = str(track.track_num) + ". " + track.title + " - " + performer
             if include_length:
                 track_line += " (" + track.index + ")"
             output += track_line + "\n"
