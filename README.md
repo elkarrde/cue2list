@@ -7,4 +7,4 @@ Usage: python3 cue2lst.py <cuefile> <output_format> [--verbose]
 
 - **cuefile**: cuefile `.cue`,
 - **output_format**: `md` or `txt`,
-- **verbose**: switch, if used, tacklist will be displayed.
+- **verbose**: switch, if used, tracklist will be displayed.
