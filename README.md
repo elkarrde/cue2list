@@ -1,0 +1,10 @@
+# Cue2List
+---
+
+Converts Cuefile (`.cue`) to Markdown list (`.md`) or text list (`.txt`).
+
+Usage: python3 cue2lst.py <cuefile> <output_format> [--verbose]
+
+- **cuefile**: cuefile `.cue`,
+- **output_format**: `md` or `txt`,
+- **verbose**: switch, if used, tacklist will be displayed.
