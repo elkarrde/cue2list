@@ -1,3 +1,4 @@
+import os
 import sys
 import re
 from typing import Tuple, Optional
@@ -48,6 +49,10 @@ class Cuesheet:
     # PERFORMER "Ursula 1000"
     # TITLE "All Systems Are Go Go"
     # FILE "CDImage.wav" WAVE
+
+    # NOTE: class-level attributes — all instances share these lists/values unless
+    # overridden per instance. Safe here because only one Cuesheet is created per run,
+    # but would cause cross-instance contamination if multiple were ever instantiated.
     tracks = []
     incomplete_header = False
 
@@ -103,7 +108,7 @@ def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
-        return None, "Error reading file: " + e
+        return None, "Error reading file: " + str(e)
 
     sheet = Cuesheet()
     idx = 0
@@ -121,6 +126,10 @@ def parse_cue_file(file_path: str) -> Tuple[Optional[Cuesheet], Optional[str]]:
             track.parseline(line)
             if track.track_complete():
                 sheet.add_track(track)
+                # Reset by replacing with a fresh instance so that extra lines
+                # between INDEX and the next TRACK directive don't re-trigger
+                # track_complete() and add a duplicate.
+                track = Track()
             idx += 1
 
     if not sheet.header_complete():
@@ -197,5 +206,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import os
     main()
