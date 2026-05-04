@@ -22,11 +22,11 @@ Example CUE files are in `examples/`.
 
 All logic lives in `cue2lst.py`. The flow is:
 
-1. `parse_cue_file()` — reads the `.cue` file line-by-line. It first feeds lines into a `Cuesheet` until `header_complete()` is true (either PERFORMER+TITLE found, or a FILE directive is seen), then feeds remaining lines into a `Track` instance, flushing completed tracks into the sheet via `add_track()`.
+1. `parse_cue_file()` — reads the `.cue` file line-by-line. It first feeds lines into a `Cuesheet` until `header_complete()` is true (either PERFORMER+TITLE found, or a FILE directive is seen), then feeds remaining lines into a `Track` instance, flushing completed tracks into the sheet via `add_track()`. The `Track` instance is replaced with a fresh one after each flush so extra lines between `INDEX` and the next `TRACK` directive don't cause duplicates.
 2. `format_output()` — renders the `Cuesheet` (and its `Track` list) into a string. Per-track PERFORMER falls back to disc-level PERFORMER when absent.
-3. `main()` — CLI argument parsing, writes the output file. Note: `import os` is deferred to inside `main()`.
+3. `main()` — CLI argument parsing, writes the output file.
 
-**Known design quirk**: `Cuesheet.tracks = []` is declared at class level, which means all instances share the list unless a fresh list is assigned per instance. This works in practice because only one `Cuesheet` is created per run.
+**Known design quirk**: `Cuesheet.tracks = []` is declared at class level, which means all instances share the list unless a fresh list is assigned per instance. This works in practice because only one `Cuesheet` is created per run. A comment in the code flags this.
 
 **Track length**: `include_length` (which would append the INDEX timestamp to each track line) is intentionally disabled — the last track's length cannot be calculated from a CUE file alone since no end-time is present.
 
