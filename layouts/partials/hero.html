@@ -1,0 +1,44 @@
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <i class="ti ti-music" aria-hidden="true"></i>
+      python 3
+      <span class="sep">&middot;</span>
+      no dependencies
+      <span class="sep">&middot;</span>
+      single file
+    </div>
+    <h1>.cue <span class="accent">&rarr;</span> tracklist</h1>
+    <p class="hero-sub">Convert CD Audio CUE sheet files to clean Markdown or plain text tracklists. One script, standard library only.</p>
+    <div class="hero-actions">
+      <a href="{{ .Site.Params.codeberg }}" class="btn-primary" target="_blank" rel="noopener">
+        <i class="ti ti-download" aria-hidden="true"></i>
+        get it on codeberg
+      </a>
+      <a href="{{ .Site.Params.github }}" class="btn-outline" target="_blank" rel="noopener">
+        <i class="ti ti-brand-github" aria-hidden="true"></i>
+        mirror on github
+      </a>
+    </div>
+    <div class="terminal-wrap">
+      <div class="terminal-titlebar">
+        <div class="tdot"></div>
+        <div class="tdot"></div>
+        <div class="tdot"></div>
+      </div>
+      <div class="terminal-body">
+        <div class="tline"><span class="prompt">$ </span><span class="cmd">python3 cue2lst.py</span> <span class="path">odelay.cue</span> <span class="flag">md</span> <span class="flag">--verbose</span></div>
+        <div class="tline comment"># disc: Beck / Odelay &mdash; 16 tracks found</div>
+        <div class="tline spacer">&nbsp;</div>
+        <div class="tline"><span class="ok">&#10003;</span>  <span class="out">Output written to:</span> <span class="fname">odelay.md</span></div>
+        <div class="tline spacer">&nbsp;</div>
+        <div class="tline comment"># odelay.md</div>
+        <div class="tline"><span class="arrow">#</span> Beck: Odelay</div>
+        <div class="tline"><span class="out">1.</span> Loser - Beck</div>
+        <div class="tline"><span class="out">2.</span> Hotwax - Beck</div>
+        <div class="tline"><span class="out">3.</span> Where It's At - Beck</div>
+        <div class="tline comment"># &hellip;and 13 more</div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,9 @@
+baseURL = "/"
+locale = "en-us"
+disableKinds = ["taxonomy", "term"]
+title = "cue2list — .cue → tracklist"
+
+[params]
+  description = "Convert CD Audio CUE sheet files to clean Markdown or plain text tracklists. One script, standard library only."
+  codeberg = "https://codeberg.org/elkarrde/Cue2List"
+  github   = "https://github.com/elkarrde/cue2list"

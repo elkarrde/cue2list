@@ -1,3 +1,5 @@
+![cue2list logo](logo.svg)
+
 # Cue2List
 ---
 

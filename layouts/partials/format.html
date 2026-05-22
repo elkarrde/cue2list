@@ -1,0 +1,23 @@
+<section class="format" id="format">
+  <div class="section-inner">
+    <h2>CUE format supported</h2>
+    <p class="section-sub">Standard CD Audio CUE sheets. Only <code>AUDIO</code> track types are parsed.</p>
+    <div class="format-grid">
+      <div class="fmt-card">
+        <div class="fmt-icon"><i class="ti ti-disc" aria-hidden="true"></i></div>
+        <h3>Disc-level header</h3>
+        <p><code>PERFORMER</code>, <code>TITLE</code>, and <code>FILE</code> directives. A missing title or performer is tolerated if <code>FILE</code> is present.</p>
+      </div>
+      <div class="fmt-card">
+        <div class="fmt-icon"><i class="ti ti-list-numbers" aria-hidden="true"></i></div>
+        <h3>Per-track fields</h3>
+        <p><code>TITLE</code> and <code>INDEX</code> are required per track. <code>PERFORMER</code> is optional &mdash; falls back to the disc-level value.</p>
+      </div>
+      <div class="fmt-card">
+        <div class="fmt-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+        <h3>Index timestamps</h3>
+        <p>Parsed in <code>MM:SS:FF</code> (frames) format. Track length is not output &mdash; the last track's end cannot be derived from a CUE file alone.</p>
+      </div>
+    </div>
+  </div>
+</section>

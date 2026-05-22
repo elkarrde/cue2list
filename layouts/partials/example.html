@@ -1,0 +1,35 @@
+<section class="example" id="example">
+  <div class="section-inner">
+    <h2>Input &rarr; output</h2>
+    <p class="section-sub">The parser reads the CUE header and each AUDIO track in sequence.</p>
+    <div class="example-flow">
+      <div class="flow-block">
+        <div class="flow-label"><i class="ti ti-file" style="font-size:12px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>beck.cue</div>
+        <div class="flow-body">
+          <div><span class="ck">PERFORMER</span> <span class="cv">"Beck"</span></div>
+          <div><span class="ck">TITLE</span> <span class="cv">"Odelay"</span></div>
+          <div><span class="ck">FILE</span> <span class="cv">"CDImage.wav"</span> WAVE</div>
+          <div>&nbsp;&nbsp;<span class="ck">TRACK</span> <span class="num">01</span> AUDIO</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk">TITLE</span> <span class="tv">"Loser"</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk">INDEX</span> 01 <span class="num">00:00:00</span></div>
+          <div>&nbsp;&nbsp;<span class="ck">TRACK</span> <span class="num">02</span> AUDIO</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk">TITLE</span> <span class="tv">"Hotwax"</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk">INDEX</span> 01 <span class="num">14:36:46</span></div>
+        </div>
+      </div>
+      <div class="flow-arrow">
+        <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </div>
+      <div class="flow-block">
+        <div class="flow-label"><i class="ti ti-markdown" style="font-size:12px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>beck.md</div>
+        <div class="flow-body">
+          <div><span class="ck">#</span> <span class="cv">Beck: Odelay</span></div>
+          <div>&nbsp;</div>
+          <div><span class="num">1.</span> <span class="tv">Loser</span> <span class="tk">- Beck</span></div>
+          <div><span class="num">2.</span> <span class="tv">Hotwax</span> <span class="tk">- Beck</span></div>
+          <div style="color:var(--sky);font-style:italic">&hellip;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
