@@ -1,4 +1,4 @@
-![cue2list logo](logo.svg)
+![CD disc](cd256.png)
 
 # Cue2List
 ---
