@@ -1,4 +1,4 @@
-![CD disc](cd256.png)
+![CD disc](cd64.png)
 
 # Cue2List
 ---
