@@ -11,3 +11,8 @@
 !README.md
 !CLAUDE.md
 !CONTEXT.md
+
+# Python build artifacts
+dist/
+build/
+*.egg-info/
