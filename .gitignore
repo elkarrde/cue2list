@@ -11,8 +11,11 @@
 !README.md
 !CLAUDE.md
 !CONTEXT.md
+!CHANGELOG.md
 
 # Python build artifacts
 dist/
 build/
 *.egg-info/
+__pycache__/
+*.pyc

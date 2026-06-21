@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://codeberg.org/elkarrde/Cue2List"
+Homepage = "https://iso3200.net/cue2list/"
 Repository = "https://codeberg.org/elkarrde/Cue2List"
 Mirror = "https://github.com/elkarrde/cue2list"
 

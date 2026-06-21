@@ -8,7 +8,7 @@ import re
 from copy import copy
 from typing import Tuple, Optional
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 class Track:
